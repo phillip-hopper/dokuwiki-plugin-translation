@@ -260,7 +260,6 @@ class helper_plugin_translation extends DokuWiki_Plugin {
             $out .= '<form action="' . $action . '" id="translation__dropdown">';
             if($flag) $out .= '<img src="' . $flag . '" alt="' . hsc($lang) . '" height="11" class="' . $class . '" /> ';
 
-            // TODO: Replace this
             $out .= '<select name="id" class="' . $class . '">';
         } else {
             $out .= '<ul>';
@@ -301,11 +300,10 @@ class helper_plugin_translation extends DokuWiki_Plugin {
         }
 
         $script = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'auto_complete_events.js');
-        $ns = ($INFO['namespace'] === false) ? '' : $INFO['namespace'];
 
         $out .= "<input type=\"hidden\" id=\"namespace-auto-complete-action\" value=\"{$idPart}\">";
 
-        $out .= $this->renderAutoCompleteTextBox('namespace-auto-complete', 'id', 'width: 100%', $class, $script, $ns);
+        $out .= $this->renderAutoCompleteTextBox('namespace-auto-complete', 'id', 'width: 100%', $class, $script);
 
         return $out;
     }
@@ -440,7 +438,7 @@ class helper_plugin_translation extends DokuWiki_Plugin {
         echo '<div class="notify">' . $msg . '</div>';
     }
 
-    public function renderAutoCompleteTextBox($id, $name = '', $style = '', $class = '', $callbackScript = '', $defaultValue = '') {
+    public function renderAutoCompleteTextBox($id, $name = '', $style = '', $class = '', $callbackScript = '') {
 
         $html = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'auto_complete_language.html');
 
@@ -461,9 +459,6 @@ class helper_plugin_translation extends DokuWiki_Plugin {
             $html = str_replace('class=""', 'class="' . $class . '"', $html);
 
         $html = str_replace('/* additional callback script - do not remove this comment */', $callbackScript, $html);
-        $html = str_replace('defaultValue', $defaultValue, $html);
-        $html = str_replace('Loading...', $this->getLang('loading'), $html);
-        $html = str_replace('Select a language', $this->getLang('selectLanguage'), $html);
 
         return $html;
     }
