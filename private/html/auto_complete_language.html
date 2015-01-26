@@ -9,15 +9,19 @@
 -->
 <input type="text" id="" name="" style="" class="" placeholder="">
 <script type="text/javascript">
-    jQuery(function(d) {
+    jQuery().ready(function() {
 
-        jQuery('#id').attr('placeholder', 'Loading...');
+        jQuery('#id').attr('placeholder', LANG.plugins['translation']['selectLanguage']).on('focus', function() {
 
-        var languages = [];
+            var textBox = jQuery('#id');
 
-        setTimeout(function(defaultVal) {
-            var request = {type: 'GET', url: 'https://door43.org:9096/?q='};
+            if (textBox.hasClass('ui-autocomplete-input')) return;
+
+            textBox.attr('placeholder', LANG.plugins['translation']['loading']);
+
             var textIdx = -1;
+            var languages = [];
+            var request = {type: 'GET', url: 'https://door43.org:9096/?q='};
 
             jQuery.ajax(request).done(function(data) {
 
@@ -27,12 +31,8 @@
 
                     var langData = data.results[i];
                     languages.push(langData['ln'] + ' (' + langData['lc'] + ')');
-
-                    if (defaultVal && (langData['lc'] === defaultVal))
-                        textIdx = languages.length - 1;
                 }
 
-                var textBox = jQuery('#id');
                 textBox.autocomplete({
                     source: languages
                 });
@@ -40,10 +40,10 @@
                 if (textIdx > -1)
                     textBox.val(languages[textIdx]);
 
-                textBox.attr('placeholder', 'Select a language');
+                textBox.attr('placeholder', LANG.plugins['translation']['selectLanguage']);
 
                 /* additional callback script - do not remove this comment */
             });
-        }(d), 10);
-    }('defaultValue'));
+        });
+    });
 </script>
