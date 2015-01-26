@@ -8,7 +8,7 @@ namespaceAutoComplete.on('autocompleteclose', function() {
     // if closed without picking from the list, do nothing
     if (langText.indexOf(')') < 3) return;
 
-    var langCodes = langText.match(/\(([a-z-]+)\)$/i);
+    var langCodes = langText.match(/\(([a-z0-9-]+)\)$/i);
 
     if ((!langCodes) || (langCodes.length !== 2)) return;
 
