@@ -1,0 +1,49 @@
+<!--
+* Name: auto_complete_language.html
+* Description: The html and javascript that implements the UI for the auto-complete language selection control.
+*
+* This comment block will be removed by the plugin before rendering.
+*
+* Author: Phil Hopper
+* Date:   2015-01-18
+-->
+<input type="text" id="" name="" style="" class="" placeholder="">
+<script type="text/javascript">
+    jQuery().ready(function() {
+
+        jQuery('#id').attr('placeholder', LANG.plugins['translation']['selectLanguage']).on('focus', function() {
+
+            var textBox = jQuery('#id');
+
+            if (textBox.hasClass('ui-autocomplete-input')) return;
+
+            textBox.attr('placeholder', LANG.plugins['translation']['loading']);
+
+            var textIdx = -1;
+            var languages = [];
+            var request = {type: 'GET', url: 'https://door43.org:9096/?q='};
+
+            jQuery.ajax(request).done(function(data) {
+
+                if (!data.results) return;
+
+                for (var i = 0; i < data.results.length; i++) {
+
+                    var langData = data.results[i];
+                    languages.push(langData['ln'] + ' (' + langData['lc'] + ')');
+                }
+
+                textBox.autocomplete({
+                    source: languages
+                });
+
+                if (textIdx > -1)
+                    textBox.val(languages[textIdx]);
+
+                textBox.attr('placeholder', LANG.plugins['translation']['selectLanguage']);
+
+                /* additional callback script - do not remove this comment */
+            });
+        });
+    });
+</script>

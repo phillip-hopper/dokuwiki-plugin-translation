@@ -16,6 +16,8 @@ class helper_plugin_translation extends DokuWiki_Plugin {
     var $LN = array(); // hold native names
     var $opts = array(); // display options
 
+    var $display_autoComplete = 2;
+
     /**
      * Initialize
      */
@@ -92,7 +94,7 @@ class helper_plugin_translation extends DokuWiki_Plugin {
      * $lng is default lang
      */
     function buildTransID($lng, $idpart) {
-        global $conf;
+        //global $conf;
         if($lng) {
             $link = ':' . $this->translationNs . $lng . ':' . $idpart;
             $name = $lng;
@@ -140,8 +142,8 @@ class helper_plugin_translation extends DokuWiki_Plugin {
      */
     function showAbout() {
         global $ID;
-        global $conf;
-        global $INFO;
+        //global $conf;
+        //global $INFO;
 
         $curlc = $this->getLangPart($ID);
 
@@ -189,14 +191,11 @@ class helper_plugin_translation extends DokuWiki_Plugin {
      * Can be called from the template or via the ~~TRANS~~ syntax component.
      */
     public function showTranslations() {
-        global $conf;
+
         global $INFO;
 
         if(!$this->istranslatable($INFO['id'])) return '';
         $this->checkage();
-
-        list($lc, $idpart) = $this->getTransParts($INFO['id']);
-        $lang = $this->realLC($lc);
 
         $out = '<div class="plugin_translation">';
 
@@ -207,6 +206,36 @@ class helper_plugin_translation extends DokuWiki_Plugin {
             $out .= ':</span> ';
             if(isset($this->opts['twolines'])) $out .= '<br />';
         }
+
+        if($this->getConf('dropdown') == $this->display_autoComplete)
+            $out .= $this->showAutoCompleteControls();
+        else
+            $out .= $this->showStandardControls();
+
+        // show about if not already shown
+        if(!isset($this->opts['title']) && $this->getConf('about')) {
+            $out .= '&nbsp';
+            $out .= $this->showAbout();
+        }
+
+        $out .= '</div>';
+
+        return $out;
+    }
+
+    /**
+     * Displays the default dokuwiki language selection controls
+     * @return string
+     */
+    private function showStandardControls() {
+
+        global $conf;
+        global $INFO;
+
+        $out = '';
+
+        list($lc, $idPart) = $this->getTransParts($INFO['id']);
+        $lang = $this->realLC($lc);
 
         // open wrapper
         if($this->getConf('dropdown')) {
@@ -230,6 +259,7 @@ class helper_plugin_translation extends DokuWiki_Plugin {
 
             $out .= '<form action="' . $action . '" id="translation__dropdown">';
             if($flag) $out .= '<img src="' . $flag . '" alt="' . hsc($lang) . '" height="11" class="' . $class . '" /> ';
+
             $out .= '<select name="id" class="' . $class . '">';
         } else {
             $out .= '<ul>';
@@ -237,11 +267,13 @@ class helper_plugin_translation extends DokuWiki_Plugin {
 
         // insert items
         foreach($this->translations as $t) {
-            $out .= $this->getTransItem($t, $idpart);
+            $out .= $this->getTransItem($t, $idPart);
         }
 
         // close wrapper
         if($this->getConf('dropdown')) {
+
+            // TODO: Replace this
             $out .= '</select>';
             $out .= '<input name="go" type="submit" value="&rarr;" />';
             $out .= '</form>';
@@ -249,13 +281,29 @@ class helper_plugin_translation extends DokuWiki_Plugin {
             $out .= '</ul>';
         }
 
-        // show about if not already shown
-        if(!isset($this->opts['title']) && $this->getConf('about')) {
-            $out .= '&nbsp';
-            $out .= $this->showAbout();
+        return $out;
+    }
+
+    private function showAutoCompleteControls() {
+
+        global $INFO;
+
+        $out = '';
+
+        $idPart = $this->getTransParts($INFO['id'])[1];
+
+        // select needs its own styling
+        if($INFO['exists']) {
+            $class = 'wikilink1';
+        } else {
+            $class = 'wikilink2';
         }
 
-        $out .= '</div>';
+        $script = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'auto_complete_events.js');
+
+        $out .= "<input type=\"hidden\" id=\"namespace-auto-complete-action\" value=\"{$idPart}\">";
+
+        $out .= $this->renderAutoCompleteTextBox('namespace-auto-complete', 'id', 'width: 100%', $class, $script);
 
         return $out;
     }
@@ -388,5 +436,30 @@ class helper_plugin_translation extends DokuWiki_Plugin {
         }
 
         echo '<div class="notify">' . $msg . '</div>';
+    }
+
+    public function renderAutoCompleteTextBox($id, $name = '', $style = '', $class = '', $callbackScript = '') {
+
+        $html = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'auto_complete_language.html');
+
+        // remove the initial doc comments
+        $html = preg_replace('/^\<!--(.|\n)*--\>(\n)?/', '', $html, 1);
+
+        // set id, name, style and class
+        $html = str_replace('id=""', 'id="' . $id . '"', $html);
+        $html = str_replace('#id', '#' . $id, $html);
+
+        if (!empty($name))
+            $html = str_replace('name=""', 'name="' . $name . '"', $html);
+
+        if (!empty($style))
+            $html = str_replace('style=""', 'style="' . $style . '"', $html);
+
+        if (!empty($class))
+            $html = str_replace('class=""', 'class="' . $class . '"', $html);
+
+        $html = str_replace('/* additional callback script - do not remove this comment */', $callbackScript, $html);
+
+        return $html;
     }
 }
