@@ -11,17 +11,23 @@
 <script type="text/javascript">
     jQuery().ready(function() {
 
-        jQuery('#id').attr('placeholder', LANG.plugins['translation']['selectLanguage']).on('focus', function() {
+        // used to prevent searching while backspacing
+        var previousSearch = '';
+
+        jQuery('#id').attr('placeholder', LANG.plugins['translation']['selectLanguage']).on('keyup', function() {
 
             var textBox = jQuery('#id');
 
-            if (textBox.hasClass('ui-autocomplete-input')) return;
+            var textVal = textBox.val();
+
+            if ((textVal.length !== 2) || (textVal === previousSearch)) return;
+
+            previousSearch = textVal;
 
             textBox.attr('placeholder', LANG.plugins['translation']['loading']);
 
-            var textIdx = -1;
             var languages = [];
-            var request = {type: 'GET', url: 'https://door43.org:9096/?q='};
+            var request = {type: 'GET', url: 'https://door43.org:9096/?q=' + encodeURIComponent(textVal)};
 
             jQuery.ajax(request).done(function(data) {
 
@@ -33,17 +39,19 @@
                     languages.push(langData['ln'] + ' (' + langData['lc'] + ')');
                 }
 
-                textBox.autocomplete({
-                    source: languages
-                });
+                if (!textBox.hasClass('ui-autocomplete-input')) {
+                    textBox.autocomplete({ source: languages });
+                }
+                else {
+                    textBox.autocomplete('option', 'source', languages);
+                }
 
-                if (textIdx > -1)
-                    textBox.val(languages[textIdx]);
+                textBox.autocomplete('search', textVal);
 
                 textBox.attr('placeholder', LANG.plugins['translation']['selectLanguage']);
-
-                /* additional callback script - do not remove this comment */
             });
+
+            /* additional callback script - do not remove this comment */
         });
     });
 </script>
