@@ -1,0 +1,28 @@
+<div>
+    <ul id="door43RecentLanguageList">
+    </ul>
+</div>
+<script type="text/javascript">
+    jQuery().ready(function() {
+
+        var cookie = Door43Cookie.getValue('recentNamespaceCodes');
+        if (cookie) {
+
+            // get the url for language links
+            var action = jQuery('#namespace-auto-complete-action').val();
+            var pos = action.indexOf(':');
+            if (pos > -1) action = action.substr(pos + 1);
+
+            // get the list of recent languages
+            var languages = cookie.split(';');
+            var ul = jQuery('#door43RecentLanguageList');
+            for (var i = languages.length - 1; i > -1; i--) {
+
+                // format = code:language description
+                var values = languages[i].split(':');
+
+                ul.append('<li style="float: none;"><a href="' + DOKU_BASE + values[0] + '/' + action + '">' + values[1] + '</a></li>');
+            }
+        }
+    });
+</script>

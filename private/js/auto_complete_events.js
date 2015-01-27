@@ -48,8 +48,28 @@ function translationSelectNamespace(langIso, langText) {
     //if the namespace didn't change, do nothing
     if (NS && (langIso === NS)) return;
 
-    // Save the current language
-    DokuCookie.setValue('currentNamespaceCodes', langIso + ':' + langText);
+    // Save in the recent languages list
+    var cookie = Door43Cookie.getValue('recentNamespaceCodes');
+    var recentList = (cookie) ? cookie.split(';') : [];
+
+    // is this language already in the list?
+    var already = recentList.some(function(item) {
+        if (item.length < langIso.length) return false;
+        return item.substr(0, langIso.length + 1) === langIso + ':';
+    });
+
+    // in not already in the list, add it now
+    if (!already) {
+        recentList.push(langIso + ':' + langText);
+
+        // limit length of the list
+        while (recentList.length > 6) {
+            recentList.shift();
+        }
+
+        // save in a cookie
+        Door43Cookie.setValue('recentNamespaceCodes', recentList.join(';'));
+    }
 
     var action = jQuery('#namespace-auto-complete-action').val();
     var pos = action.indexOf(':');
