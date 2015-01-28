@@ -212,7 +212,7 @@ class helper_plugin_translation extends DokuWiki_Plugin {
         if(!$this->istranslatable($INFO['id'])) return '';
         $this->checkage();
 
-        $out = '<div class="plugin_translation" style="width: 100%;">';
+        $out = '<div class="plugin_translation" style="width: 100%; box-sizing: border-box;">';
 
         //show title and about
         if(isset($this->opts['title'])) {
