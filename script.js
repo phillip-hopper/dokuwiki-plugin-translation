@@ -80,23 +80,46 @@ jQuery(function(){
     });
 });
 
-jQuery(function() {
+jQuery().ready(function() {
     // show the current namespace description
-    if (!NS) return;
-    var nsDescription = NS;
+    var cleanNS = NS.split(':')[0];
+    var nsDescription = cleanNS;
+    var currentNS = '';
     var cookie = Door43Cookie.getValue('recentNamespaceCodes');
 
     if (cookie) {
         var cookies = cookie.split(';');
-        console.log(cookies);
         for (var i = 0; i < cookies.length; i++) {
 
             var val = cookies[i].split(':');
-            if ((val.length > 1) && (val[0] === NS)) {
+            if ((val.length > 1) && (val[0] === cleanNS)) {
 
+                currentNS = val[0];
                 nsDescription = val[1];
                 break;
             }
+        }
+
+        // get the url for language links
+        var action = jQuery('#namespace-auto-complete-action').val();
+
+        // remove the namespace
+        if (currentNS) {
+            var pos = action.indexOf(currentNS + ':');
+            if (pos === 0)
+                action = action.substr(currentNS.length + 1);
+        }
+
+        action = action.replace(':', '/');
+
+        // get the list of recent languages
+        var ul = jQuery('#door43RecentLanguageList');
+        for (var j = cookies.length - 1; j > -1; j--) {
+
+            // format = code:language description
+            var values = cookies[j].split(':');
+
+            ul.append('<li style="float: none;"><a href="' + DOKU_BASE + values[0] + '/' + action + '">' + values[1] + '</a></li>');
         }
     }
     jQuery('#namespace-auto-complete').val(nsDescription);
