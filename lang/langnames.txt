@@ -1,5 +1,5 @@
 # Native language names
-# extracted from http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# extracted from http://td.unfoldingword.org/exports/langnames.json
 
 aa	Afaraf
 aaa	Ghotuo
@@ -331,6 +331,7 @@ aqr	Arhâ
 aqt	Angaité
 aqz	Akuntsu
 ar	العربية
+ar-x-dcv	Arabic Dominant Culture Variant
 arb	Standard Arabic
 arc	Official Aramaic (700-300 BCE)
 ard	Arabana
@@ -1776,6 +1777,7 @@ ers	Ersu
 ert	Eritai
 erw	Erokwanas
 es	español, castellano
+es-419	Español Latin America
 ese	Ese Ejja
 esh	Eshtehardi
 esi	North Alaskan Inupiatun
