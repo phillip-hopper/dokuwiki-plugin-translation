@@ -56,6 +56,31 @@ var Door43Cookie = {
     }
 };
 
+function saveNamespace(langIso, langText) {
+
+    // Save in the recent languages list
+    var cookie = Door43Cookie.getValue('recentNamespaceCodes');
+    var recentList = (cookie) ? cookie.split(';') : [];
+
+    // is this language already in the list?
+    var already = recentList.some(function(item) {
+        if (item.length < langIso.length) return false;
+        return item.substr(0, langIso.length + 1) === langIso + ':';
+    });
+
+    // in not already in the list, add it now
+    if (!already) {
+        recentList.push(langIso + ':' + langText);
+
+        // limit length of the list
+        while (recentList.length > 6) {
+            recentList.shift();
+        }
+
+        // save in a cookie
+        Door43Cookie.setValue('recentNamespaceCodes', recentList.join(';'));
+    }
+}
 
 /**
  * Remove go button from translation dropdown
@@ -81,46 +106,58 @@ jQuery(function(){
 });
 
 jQuery().ready(function() {
-    // show the current namespace description
-    var cleanNS = NS.split(':')[0];
-    var nsDescription = cleanNS;
-    var currentNS = '';
-    var cookie = Door43Cookie.getValue('recentNamespaceCodes');
 
-    if (cookie) {
-        var cookies = cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
+    // save the current namespace, if not selected using the translation control
+    var passedNS = jQuery('#door43CurrentLanguage').val();
+    if (passedNS) {
+        var passedParts = passedNS.split(':');
+        saveNamespace(passedParts[0], passedParts[1] + ' (' + passedParts[0] + ')');
 
-            var val = cookies[i].split(':');
-            if ((val.length > 1) && (val[0] === cleanNS)) {
+        // show the current namespace description
+        var nsDescription = passedParts[0];
+        var currentNS = '';
+        var cookie = Door43Cookie.getValue('recentNamespaceCodes');
 
-                currentNS = val[0];
-                nsDescription = val[1];
-                break;
+        if (cookie) {
+            var cookies = cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+
+                var val = cookies[i].split(':');
+                if ((val.length > 1) && (val[0] === passedParts[0])) {
+
+                    currentNS = val[0];
+                    nsDescription = val[1];
+                    break;
+                }
+            }
+
+            // get the url for language links
+            var action = jQuery('#namespace-auto-complete-action').val();
+
+            // remove the namespace
+            if (currentNS) {
+                if (action === currentNS) {
+                    action = '';
+                }
+                else {
+                    var pos = action.indexOf(currentNS + ':');
+                    if (pos === 0)
+                        action = action.substr(currentNS.length + 1);
+                }
+            }
+
+            action = action.replace(':', '/');
+
+            // get the list of recent languages
+            var ul = jQuery('#door43RecentLanguageList');
+            for (var j = cookies.length - 1; j > -1; j--) {
+
+                // format = code:language description
+                var values = cookies[j].split(':');
+
+                ul.append('<li style="float: none;"><a href="' + DOKU_BASE + values[0] + '/' + action + '">' + values[1] + '</a></li>');
             }
         }
-
-        // get the url for language links
-        var action = jQuery('#namespace-auto-complete-action').val();
-
-        // remove the namespace
-        if (currentNS) {
-            var pos = action.indexOf(currentNS + ':');
-            if (pos === 0)
-                action = action.substr(currentNS.length + 1);
-        }
-
-        action = action.replace(':', '/');
-
-        // get the list of recent languages
-        var ul = jQuery('#door43RecentLanguageList');
-        for (var j = cookies.length - 1; j > -1; j--) {
-
-            // format = code:language description
-            var values = cookies[j].split(':');
-
-            ul.append('<li style="float: none;"><a href="' + DOKU_BASE + values[0] + '/' + action + '">' + values[1] + '</a></li>');
-        }
+        jQuery('#namespace-auto-complete').val(nsDescription);
     }
-    jQuery('#namespace-auto-complete').val(nsDescription);
 });

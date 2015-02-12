@@ -486,7 +486,20 @@ class helper_plugin_translation extends DokuWiki_Plugin {
 
     private function renderRecentLanguages() {
 
+        global $INFO;
+
+        $currentLang = '';
+
+        // get the possible language namespace
+        $checkLang = explode(':', $INFO['id'], 2)[0];
+
+        // is this an actual namespace?
+        if (array_key_exists($checkLang, $this->LN))
+            $currentLang = $checkLang . ':' . $this->LN[$checkLang];
+
+        // load the html
         $html = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'recent_languages.html');
+        $html = str_replace('id="door43CurrentLanguage" value=""', 'id="door43CurrentLanguage" value="' . $currentLang . '"', $html);
 
         return $html;
     }
