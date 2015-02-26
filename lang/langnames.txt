@@ -1869,7 +1869,7 @@ for	Fore
 fos	Siraya
 fpe	Fernando Po Creole English
 fqs	Fas
-fr	français, langue française
+fr	français
 frc	Cajun French
 frd	Fordata
 frm	Middle French (ca. 1400-1600)
