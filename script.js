@@ -107,6 +107,12 @@ jQuery(function(){
 
 jQuery().ready(function() {
 
+    // get the url for language links
+    var action = jQuery('#namespace-auto-complete-action').val();
+
+    // if the syntax plugin is not loaded, return now
+    if (typeof action === 'undefined') return;
+
     var currentNS = '';
     var passedLangCode = '';
     var nsDescription = '';
@@ -135,9 +141,6 @@ jQuery().ready(function() {
                 break;
             }
         }
-
-        // get the url for language links
-        var action = jQuery('#namespace-auto-complete-action').val();
 
         // remove the namespace
         if (currentNS) {
